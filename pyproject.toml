@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "speedtest-ambient"
+version = "0.1.0"
+description = ""
+authors = ["elferia <a.t.qu.qu.qu@gmail.com>"]
+#readme = "README.md"
+packages = [{include = "speedtest_ambient"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+ambient = {git = "https://github.com/AmbientDataInc/ambient-python-lib.git"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+speedtest-ambient = 'speedtest_ambient:run'
