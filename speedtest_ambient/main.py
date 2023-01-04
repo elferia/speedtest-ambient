@@ -64,7 +64,7 @@ def _sieve_addresses_family(addresses: Iterable[str], v4: bool) -> Iterator[str]
         if re.search(
             rf"""
                 \b
-                {address}
+                {re.escape(address)}
                 \b
             """,
             p.stdout,
