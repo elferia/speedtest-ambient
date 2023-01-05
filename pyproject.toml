@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "speedtest-ambient"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["elferia <a.t.qu.qu.qu@gmail.com>"]
 #readme = "README.md"

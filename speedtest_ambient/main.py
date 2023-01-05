@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 import tomllib
+from types import MappingProxyType
 from typing import Any, NamedTuple, Optional
 
 from ambient import Ambient
@@ -86,6 +87,7 @@ def _separate_family(addr_infos: Iterable[_Dict]) -> tuple[list[str], list[str]]
 
 class _SpeedTestResult(NamedTuple):
     timestamp: datetime
+    server: MappingProxyType[str, Any]
     latency_ms: float
     jitter_ms: float
     download_bytesps: int
@@ -98,6 +100,7 @@ class _SpeedTestResult(NamedTuple):
         return dict(
             ((f"d{i}", d) for i, d in enumerate(self._to_ambient_data(), 1)),
             created=created,
+            cmnt=json.dumps({"server_id": self.server["id"]}),
         )
 
     def _to_ambient_data(self) -> Iterator[Any]:
@@ -114,6 +117,7 @@ def _speed_test(ip_address: str) -> _SpeedTestResult:
     result: dict[str, Any] = json.loads(p.stdout)
     return _SpeedTestResult(
         datetime.fromisoformat(result["timestamp"]),
+        MappingProxyType(result["server"]),
         result["ping"]["latency"],
         result["ping"]["jitter"],
         result["download"]["bandwidth"],
