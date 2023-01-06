@@ -94,14 +94,16 @@ class _SpeedTestResult(NamedTuple):
     upload_bytesps: int
     packet_loss: Optional[float]
 
-    def to_ambient(self) -> dict[str, Any]:
+    def to_ambient(self, cmnt: bool = False) -> dict[str, Any]:
         timestamp_timezone = self.timestamp.astimezone(_TIMEZONE)
         created = timestamp_timezone.strftime("%Y-%m-%d %H:%M:%S")
-        return dict(
+        ret = dict(
             ((f"d{i}", d) for i, d in enumerate(self._to_ambient_data(), 1)),
             created=created,
-            cmnt=json.dumps({"server_id": self.server["id"]}),
         )
+        if cmnt:
+            ret["cmnt"] = json.dumps({"server_id": self.server["id"]})
+        return ret
 
     def _to_ambient_data(self) -> Iterator[Any]:
         yield self.latency_ms
