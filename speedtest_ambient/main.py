@@ -1,6 +1,6 @@
 from collections.abc import Callable, Iterable, Iterator
 from datetime import datetime, timedelta, timezone
-from itertools import chain
+from itertools import chain, repeat
 import json
 from operator import methodcaller
 from pathlib import Path
@@ -36,7 +36,11 @@ def run():
     with open(Path.home() / ".config" / "speedtest-ambient.toml", "rb") as f:
         config = tomllib.load(f)
     ip_addresses = _get_ip_addresses()
-    results = map(_speed_test, ip_addresses)
+    results = map(
+        _speed_test,
+        ip_addresses,
+        chain(config.get("speedtest", {}).get("servers", []), repeat(None)),
+    )
     _ambient(results)
 
 
@@ -114,8 +118,15 @@ class _SpeedTestResult(NamedTuple):
             yield self.packet_loss
 
 
-def _speed_test(ip_address: str) -> _SpeedTestResult:
-    p = _command("speedtest", "--format", "json", "--ip", ip_address)
+def _speed_test(ip_address: str, server_id: Optional[int]) -> _SpeedTestResult:
+    p = _command(
+        "speedtest",
+        "--format",
+        "json",
+        "--ip",
+        ip_address,
+        *(() if server_id is None else ("--server-id", str(server_id))),
+    )
     result: dict[str, Any] = json.loads(p.stdout)
     return _SpeedTestResult(
         datetime.fromisoformat(result["timestamp"]),
